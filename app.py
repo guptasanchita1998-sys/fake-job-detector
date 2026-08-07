@@ -228,9 +228,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- Sidebar ----------------
+if 'nav_page' not in st.session_state:
+    st.session_state.nav_page = "📊 Dashboard"
+
+nav_options = ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "💡 Tips"]
+
 with st.sidebar:
     st.markdown("### 🛡️ Fake Job Detection")
-    page = st.radio("Navigate", ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "💡 Tips"], label_visibility="collapsed")
+    page = st.radio(
+        "Navigate", nav_options,
+        index=nav_options.index(st.session_state.nav_page),
+        label_visibility="collapsed",
+        key="sidebar_nav"
+    )
+    st.session_state.nav_page = page
     st.markdown("---")
     st.info("**Stay Safe!**\n\nVerify before you apply.")
 
@@ -248,12 +259,14 @@ if page == "📊 Dashboard":
         st.markdown("# Dashboard")
         st.markdown('<p class="dash-subtitle">Detect fake job postings and stay safe.</p>', unsafe_allow_html=True)
     with col_r:
-        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="top-bar"><span style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 12px;">☀️</span>'
-            '<span style="background:#4F46E5;color:white;border-radius:10px;padding:8px 16px;font-weight:600;font-size:14px;">+ Check New Job</span></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True)
+        btn_col1, btn_col2 = st.columns([1, 2.2])
+        with btn_col1:
+            st.markdown('<div style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 14px; font-size:16px; text-align:center;">⚙️</div>', unsafe_allow_html=True)
+        with btn_col2:
+            if st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True):
+                st.session_state.nav_page = "🔍 Check Job"
+                st.rerun()
 
     st.write("")
     c1, c2, c3, c4 = st.columns(4)
@@ -409,7 +422,12 @@ elif page == "🔍 Check Job":
                 if fake_indicators:
                     chart_df = pd.DataFrame(fake_indicators, columns=["Word", "Weight"])
                     fig = px.bar(chart_df, x="Weight", y="Word", orientation="h", color_discrete_sequence=["#E11D48"])
-                    fig.update_layout(plot_bgcolor="white", paper_bgcolor="white")
+                    fig.update_layout(
+                        plot_bgcolor="white", paper_bgcolor="white",
+                        font=dict(color="#111827"),
+                        xaxis=dict(color="#111827", gridcolor="#EEF0F5"),
+                        yaxis=dict(color="#111827")
+                    )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.write("Koi strong fake indicator nahi mila")
@@ -419,7 +437,12 @@ elif page == "🔍 Check Job":
                     chart_df = pd.DataFrame(real_indicators, columns=["Word", "Weight"])
                     chart_df["Weight"] = chart_df["Weight"].abs()
                     fig = px.bar(chart_df, x="Weight", y="Word", orientation="h", color_discrete_sequence=["#16A34A"])
-                    fig.update_layout(plot_bgcolor="white", paper_bgcolor="white")
+                    fig.update_layout(
+                        plot_bgcolor="white", paper_bgcolor="white",
+                        font=dict(color="#111827"),
+                        xaxis=dict(color="#111827", gridcolor="#EEF0F5"),
+                        yaxis=dict(color="#111827")
+                    )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.write("Koi strong real indicator nahi mila")

@@ -228,20 +228,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- Sidebar ----------------
-if 'nav_page' not in st.session_state:
-    st.session_state.nav_page = "📊 Dashboard"
-
 nav_options = ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "💡 Tips"]
+
+if 'sidebar_nav' not in st.session_state:
+    st.session_state.sidebar_nav = "📊 Dashboard"
 
 with st.sidebar:
     st.markdown("### 🛡️ Fake Job Detection")
     page = st.radio(
         "Navigate", nav_options,
-        index=nav_options.index(st.session_state.nav_page),
         label_visibility="collapsed",
         key="sidebar_nav"
     )
-    st.session_state.nav_page = page
     st.markdown("---")
     st.info("**Stay Safe!**\n\nVerify before you apply.")
 
@@ -265,7 +263,7 @@ if page == "📊 Dashboard":
             st.markdown('<div style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 14px; font-size:16px; text-align:center;">⚙️</div>', unsafe_allow_html=True)
         with btn_col2:
             if st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True):
-                st.session_state.nav_page = "🔍 Check Job"
+                st.session_state.sidebar_nav = "🔍 Check Job"
                 st.rerun()
 
     st.write("")

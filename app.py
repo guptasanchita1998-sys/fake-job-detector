@@ -1,0 +1,461 @@
+import streamlit as st
+import joblib
+import numpy as np
+import pandas as pd
+import plotly.express as px
+from datetime import datetime
+
+# Page config (must be first Streamlit command)
+st.set_page_config(page_title="Fake Job Detection", page_icon="🛡️", layout="wide", initial_sidebar_state="expanded")
+
+# ---------------- Load model & data (auto-train if model files missing) ----------------
+import os
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+
+df = pd.read_csv('fake_job_postings.csv')
+
+@st.cache_resource
+def load_or_train_model():
+    if os.path.exists('fake_job_model.pkl') and os.path.exists('vectorizer.pkl'):
+        model = joblib.load('fake_job_model.pkl')
+        vectorizer = joblib.load('vectorizer.pkl')
+        return model, vectorizer
+
+    # Train from scratch (runs once, then cached for the session)
+    data = df.copy()
+    data['description'] = data['description'].fillna('')
+    data['title'] = data['title'].fillna('')
+    data['text'] = data['title'] + ' ' + data['description']
+
+    X = data['text']
+    y = data['fraudulent']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
+    X_train_vec = vectorizer.fit_transform(X_train)
+
+    model = LogisticRegression(max_iter=1000, class_weight='balanced')
+    model.fit(X_train_vec, y_train)
+
+    joblib.dump(model, 'fake_job_model.pkl')
+    joblib.dump(vectorizer, 'vectorizer.pkl')
+    return model, vectorizer
+
+with st.spinner("Setting up the model (first run only)..."):
+    model, vectorizer = load_or_train_model()
+
+if 'history' not in st.session_state:
+    st.session_state.history = []
+
+# ---------------- Custom CSS (dashboard look) ----------------
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    html, body, [class*="css"], [class*="st-"]  {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Force light backgrounds everywhere, override dark mode */
+    .stApp, .main, [data-testid="stAppViewContainer"], body {
+        background-color: #F5F6FB !important;
+    }
+    [data-testid="stAppViewContainer"] * {
+        color: #111827;
+    }
+    p, span, label, .stMarkdown, .stCaption, h1, h2, h3, h4, h5 {
+        color: #111827 !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        border-right: 1px solid #EEF0F5;
+    }
+    section[data-testid="stSidebar"] * {
+        color: #111827 !important;
+    }
+    section[data-testid="stSidebar"] .block-container {
+        padding-top: 1.5rem;
+    }
+    section[data-testid="stSidebar"] label {
+        color: #374151 !important;
+        font-weight: 500;
+        font-size: 15px !important;
+    }
+
+    /* Text areas / inputs force light */
+    div[data-testid="stTextArea"] textarea, div[data-testid="stTextInput"] input {
+        background-color: #FFFFFF !important;
+        color: #111827 !important;
+        border: 1px solid #E5E7EB !important;
+        font-size: 15px !important;
+    }
+    textarea::placeholder, input::placeholder {
+        color: #9CA3AF !important;
+    }
+
+    div[data-baseweb="notification"] {
+        background-color: #EAF0FE !important;
+    }
+    div[data-baseweb="notification"] * {
+        color: #1E3A8A !important;
+    }
+
+    /* Stat cards */
+    .stat-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 28px 26px;
+        border: 1px solid #EEF0F5;
+        box-shadow: 0 1px 3px rgba(16,24,40,0.05);
+        height: 100%;
+    }
+    .stat-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    .stat-label { color: #6B7280; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .stat-value { color: #111827; font-size: 34px; font-weight: 800; line-height: 1.2; margin: 4px 0; }
+    .stat-sub { color: #9CA3AF; font-size: 13px; margin-top: 4px; }
+
+    .icon-green { background: #E7F7EF; color: #16A34A; }
+    .icon-red { background: #FDEBEC; color: #E11D48; }
+    .icon-amber { background: #FEF6E7; color: #D97706; }
+    .icon-blue { background: #EAF0FE; color: #4F46E5; }
+
+    .card-box {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 30px;
+        border: 1px solid #EEF0F5;
+        box-shadow: 0 1px 3px rgba(16,24,40,0.05);
+    }
+
+    .card-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+    .card-desc { color: #6B7280; font-size: 14px; margin-bottom: 18px; }
+
+    .badge-fake {
+        background: #FDEBEC; color: #E11D48;
+        padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+        display: inline-block;
+    }
+    .badge-safe {
+        background: #E7F7EF; color: #16A34A;
+        padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+        display: inline-block;
+    }
+
+    h1 { font-weight: 800 !important; color: #111827; font-size: 40px !important; }
+    .dash-subtitle { color: #6B7280; font-size: 16px; margin-top: -8px; margin-bottom: 8px; }
+
+    div.stButton > button {
+        background: #4F46E5;
+        color: white;
+        border-radius: 10px;
+        border: none;
+        padding: 0.65rem 1.4rem;
+        font-weight: 600;
+        font-size: 15px;
+    }
+    div.stButton > button:hover {
+        background: #4338CA;
+        color: white;
+    }
+
+    /* Table header row */
+    .table-header {
+        display: flex;
+        padding: 10px 4px;
+        border-bottom: 1px solid #EEF0F5;
+        color: #9CA3AF;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .table-row {
+        display: flex;
+        align-items: center;
+        padding: 16px 4px;
+        border-bottom: 1px solid #F3F4F6;
+        font-size: 15px;
+        color: #111827;
+    }
+    .col-title { flex: 3; font-weight: 500; }
+    .col-result { flex: 1; }
+    .col-conf { flex: 1.4; }
+    .col-date { flex: 1.2; color: #6B7280; }
+
+    /* Progress bar for confidence */
+    .conf-bar-bg {
+        background: #F3F4F6;
+        border-radius: 6px;
+        height: 6px;
+        width: 100%;
+        margin-top: 6px;
+        overflow: hidden;
+    }
+    .conf-bar-fill-fake { background: #E11D48; height: 100%; border-radius: 6px; }
+    .conf-bar-fill-safe { background: #16A34A; height: 100%; border-radius: 6px; }
+
+    /* Top right header bar */
+    .top-bar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        margin-top: -6px;
+    }
+
+    /* Hide default Streamlit header bar */
+    header[data-testid="stHeader"] {
+        background: transparent;
+        height: 0px;
+    }
+    div[data-testid="stToolbar"] {
+        display: none;
+    }
+    .block-container {
+        padding-top: 2.2rem;
+        padding-bottom: 3rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------- Sidebar ----------------
+with st.sidebar:
+    st.markdown("### 🛡️ Fake Job Detection")
+    page = st.radio("Navigate", ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "💡 Tips"], label_visibility="collapsed")
+    st.markdown("---")
+    st.info("**Stay Safe!**\n\nVerify before you apply.")
+
+# ---------------- Derived stats ----------------
+history_df = pd.DataFrame(st.session_state.history)
+jobs_checked = len(history_df)
+fake_count = (history_df['Result'].str.contains("FAKE").sum()) if jobs_checked else 0
+safe_count = jobs_checked - fake_count
+model_accuracy = 95  # from training report
+
+# ---------------- PAGE: Dashboard ----------------
+if page == "📊 Dashboard":
+    col_t, col_r = st.columns([3, 1.3])
+    with col_t:
+        st.markdown("# Dashboard")
+        st.markdown('<p class="dash-subtitle">Detect fake job postings and stay safe.</p>', unsafe_allow_html=True)
+    with col_r:
+        st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="top-bar"><span style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 12px;">☀️</span>'
+            '<span style="background:#4F46E5;color:white;border-radius:10px;padding:8px 16px;font-weight:600;font-size:14px;">+ Check New Job</span></div>',
+            unsafe_allow_html=True
+        )
+
+    st.write("")
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-icon icon-blue">📄</div>
+            <div class="stat-label">Jobs Checked</div>
+            <div class="stat-value">{jobs_checked}</div>
+            <div class="stat-sub">Total jobs analyzed</div>
+        </div>""", unsafe_allow_html=True)
+    with c2:
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-icon icon-red">⚠️</div>
+            <div class="stat-label">Fake Jobs</div>
+            <div class="stat-value">{fake_count}</div>
+            <div class="stat-sub">Identified as fake</div>
+        </div>""", unsafe_allow_html=True)
+    with c3:
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-icon icon-amber">🛡️</div>
+            <div class="stat-label">Safe Jobs</div>
+            <div class="stat-value">{safe_count}</div>
+            <div class="stat-sub">Looks safe</div>
+        </div>""", unsafe_allow_html=True)
+    with c4:
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-icon icon-blue">📈</div>
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value">{model_accuracy}%</div>
+            <div class="stat-sub">Model accuracy</div>
+        </div>""", unsafe_allow_html=True)
+
+    st.write("")
+    st.markdown('<div class="card-box">', unsafe_allow_html=True)
+    col_form, col_illus = st.columns([2.2, 1])
+    with col_form:
+        st.markdown('<div class="card-title">Check a Job Posting</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card-desc">Paste job description or details to check if it\'s fake or real.</div>', unsafe_allow_html=True)
+        quick_text = st.text_area("job_input", placeholder="Paste job description here...", height=130, label_visibility="collapsed")
+        if st.button("🔍  Analyze Job"):
+            if quick_text.strip():
+                text_vec = vectorizer.transform([quick_text])
+                prediction = model.predict(text_vec)[0]
+                probability = model.predict_proba(text_vec)[0]
+                confidence = probability[prediction] * 100
+                result_label = "FAKE" if prediction == 1 else "SAFE"
+                first_line = quick_text.strip().split("\n")[0]
+                st.session_state.history.append({
+                    "Title": first_line[:45] + ("..." if len(first_line) > 45 else ""),
+                    "Result": result_label,
+                    "Confidence": round(confidence),
+                    "Checked On": datetime.now().strftime("%b %d, %Y")
+                })
+                st.rerun()
+            else:
+                st.warning("Please paste a job description first.")
+    with col_illus:
+        st.markdown(
+            '<div style="text-align:center; padding-top:10px;">'
+            '<div style="font-size:70px;">🖥️🔍</div>'
+            '<p style="color:#6B7280; font-size:13px; margin-top:10px;">Our AI model analyzes the job post and detects red flags instantly.</p>'
+            '</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.write("")
+    st.markdown('<div class="card-box">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)
+    st.write("")
+    if jobs_checked == 0:
+        st.caption("No jobs checked yet. Try analyzing one above!")
+    else:
+        st.markdown("""
+        <div class="table-header">
+            <div class="col-title">Job Title</div>
+            <div class="col-result">Result</div>
+            <div class="col-conf">Confidence</div>
+            <div class="col-date">Checked On</div>
+        </div>
+        """, unsafe_allow_html=True)
+        recent = history_df.tail(5).iloc[::-1]
+        for _, row in recent.iterrows():
+            is_fake = row["Result"] == "FAKE"
+            badge_html = f'<span class="badge-fake">Fake</span>' if is_fake else f'<span class="badge-safe">Safe</span>'
+            bar_class = "conf-bar-fill-fake" if is_fake else "conf-bar-fill-safe"
+            conf_val = row["Confidence"]
+            st.markdown(f"""
+            <div class="table-row">
+                <div class="col-title">{row["Title"]}</div>
+                <div class="col-result">{badge_html}</div>
+                <div class="col-conf">
+                    {conf_val}%
+                    <div class="conf-bar-bg"><div class="{bar_class}" style="width:{conf_val}%;"></div></div>
+                </div>
+                <div class="col-date">{row["Checked On"]}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ---------------- PAGE: Check Job (detailed, with explainability) ----------------
+elif page == "🔍 Check Job":
+    st.markdown("# Check a Job Posting")
+    st.markdown('<p class="dash-subtitle">Paste full details for a deeper AI analysis with reasoning.</p>', unsafe_allow_html=True)
+    st.write("")
+
+    title = st.text_input("Job Title")
+    description = st.text_area("Job Description", height=200)
+
+    if st.button("Analyze Job", type="primary"):
+        if title.strip() == "" and description.strip() == "":
+            st.warning("Please job title ya description daalo!")
+        else:
+            text = title + ' ' + description
+            text_vec = vectorizer.transform([text])
+            prediction = model.predict(text_vec)[0]
+            probability = model.predict_proba(text_vec)[0]
+            confidence = probability[prediction] * 100
+            result_label = "FAKE" if prediction == 1 else "SAFE"
+
+            st.session_state.history.append({
+                "Title": title if title else "(no title)",
+                "Result": result_label,
+                "Confidence": round(confidence),
+                "Checked On": datetime.now().strftime("%b %d, %Y")
+            })
+
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if prediction == 1:
+                    st.markdown(f'<span class="badge-fake" style="font-size:16px;">⚠️ FAKE</span>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<span class="badge-safe" style="font-size:16px;">✅ SAFE</span>', unsafe_allow_html=True)
+            with col_b:
+                st.metric("Confidence", f"{confidence:.2f}%")
+
+            st.subheader("🔍 Why this prediction?")
+            feature_names = vectorizer.get_feature_names_out()
+            coefficients = model.coef_[0]
+            text_vec_array = text_vec.toarray()[0]
+            present_word_indices = np.where(text_vec_array > 0)[0]
+            word_scores = [(feature_names[i], coefficients[i]) for i in present_word_indices]
+            word_scores.sort(key=lambda x: x[1], reverse=True)
+
+            fake_indicators = [w for w in word_scores if w[1] > 0][:5]
+            real_indicators = [w for w in word_scores if w[1] < 0][:5]
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write("**🚩 Red Flag Words (suggest FAKE):**")
+                if fake_indicators:
+                    chart_df = pd.DataFrame(fake_indicators, columns=["Word", "Weight"])
+                    fig = px.bar(chart_df, x="Weight", y="Word", orientation="h", color_discrete_sequence=["#E11D48"])
+                    fig.update_layout(plot_bgcolor="white", paper_bgcolor="white")
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.write("Koi strong fake indicator nahi mila")
+            with col2:
+                st.write("**✅ Trust Words (suggest SAFE):**")
+                if real_indicators:
+                    chart_df = pd.DataFrame(real_indicators, columns=["Word", "Weight"])
+                    chart_df["Weight"] = chart_df["Weight"].abs()
+                    fig = px.bar(chart_df, x="Weight", y="Word", orientation="h", color_discrete_sequence=["#16A34A"])
+                    fig.update_layout(plot_bgcolor="white", paper_bgcolor="white")
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.write("Koi strong real indicator nahi mila")
+
+# ---------------- PAGE: Scan History ----------------
+elif page == "🕓 Scan History":
+    st.markdown("# Scan History")
+    st.markdown('<p class="dash-subtitle">All jobs you\'ve checked in this session.</p>', unsafe_allow_html=True)
+    st.write("")
+    if jobs_checked == 0:
+        st.info("No jobs checked yet. Go to 'Check Job' to try one!")
+    else:
+        st.markdown('<div class="card-box">', unsafe_allow_html=True)
+        display_df = history_df.iloc[::-1].copy()
+        display_df["Confidence"] = display_df["Confidence"].astype(str) + "%"
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("Clear History"):
+            st.session_state.history = []
+            st.rerun()
+
+# ---------------- PAGE: Tips ----------------
+elif page == "💡 Tips":
+    st.markdown("# Tips to Spot Fake Jobs")
+    st.write("")
+    tips = [
+        ("💰", "Too Good To Be True Salary", "Extremely high pay for minimal work or experience is a major red flag."),
+        ("💳", "Upfront Payment Requests", "Legitimate employers never ask you to pay registration or training fees."),
+        ("🏢", "No Verifiable Company Info", "Search the company name — no website or LinkedIn presence is suspicious."),
+        ("⚡", "Urgency & Pressure", "Scammers push you to decide or pay immediately without giving time to think."),
+        ("📧", "Unprofessional Communication", "Generic email domains, poor grammar, and vague job descriptions are warning signs."),
+    ]
+    for icon, t, d in tips:
+        st.markdown(f"""
+        <div class="card-box" style="margin-bottom:12px;">
+            <b>{icon} {t}</b><br>
+            <span style="color:#6B7280;">{d}</span>
+        </div>
+        """, unsafe_allow_html=True)

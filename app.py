@@ -85,6 +85,24 @@ st.markdown("""
         font-size: 15px !important;
     }
 
+    /* Sidebar nav items styled like a menu list with active highlight */
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        padding: 10px 14px;
+        border-radius: 10px;
+        margin-bottom: 2px;
+        transition: background 0.15s;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+        background: #EEF0FE;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
+        color: #4F46E5 !important;
+        font-weight: 700 !important;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
+        display: none;
+    }
+
     /* Text areas / inputs force light */
     div[data-testid="stTextArea"] textarea, div[data-testid="stTextInput"] input {
         background-color: #FFFFFF !important;
@@ -212,14 +230,7 @@ st.markdown("""
         margin-top: -6px;
     }
 
-    /* Hide default Streamlit header bar */
-    header[data-testid="stHeader"] {
-        background: transparent;
-        height: 0px;
-    }
-    div[data-testid="stToolbar"] {
-        display: none;
-    }
+    /* Reduce top spacing (config.toml toolbarMode=minimal already hides Deploy/menu) */
     .block-container {
         padding-top: 2.2rem;
         padding-bottom: 3rem;
@@ -335,7 +346,14 @@ if page == "📊 Dashboard":
 
     st.write("")
     st.markdown('<div class="card-box">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)
+    rs_col1, rs_col2 = st.columns([4, 1])
+    with rs_col1:
+        st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)
+    with rs_col2:
+        if jobs_checked > 0:
+            def _go_to_history():
+                st.session_state.sidebar_nav = "🕓 Scan History"
+            st.button("View All →", key="view_all_scans", on_click=_go_to_history, use_container_width=True)
     st.write("")
     if jobs_checked == 0:
         st.caption("No jobs checked yet. Try analyzing one above!")
@@ -346,6 +364,7 @@ if page == "📊 Dashboard":
             <div class="col-result">Result</div>
             <div class="col-conf">Confidence</div>
             <div class="col-date">Checked On</div>
+            <div style="width:20px;"></div>
         </div>
         """, unsafe_allow_html=True)
         recent = history_df.tail(5).iloc[::-1]
@@ -363,6 +382,7 @@ if page == "📊 Dashboard":
                     <div class="conf-bar-bg"><div class="{bar_class}" style="width:{conf_val}%;"></div></div>
                 </div>
                 <div class="col-date">{row["Checked On"]}</div>
+                <div style="width:20px; color:#C4C9D4; font-size:16px;">›</div>
             </div>
             """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)

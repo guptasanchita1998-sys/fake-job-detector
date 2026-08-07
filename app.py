@@ -262,9 +262,9 @@ if page == "📊 Dashboard":
         with btn_col1:
             st.markdown('<div style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 14px; font-size:16px; text-align:center;">⚙️</div>', unsafe_allow_html=True)
         with btn_col2:
-            if st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True):
+            def _go_to_check_job():
                 st.session_state.sidebar_nav = "🔍 Check Job"
-                st.rerun()
+            st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True, on_click=_go_to_check_job)
 
     st.write("")
     c1, c2, c3, c4 = st.columns(4)

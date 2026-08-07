@@ -58,6 +58,11 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
+    /* Don't override Streamlit's icon font - fixes icons showing as literal text */
+    [data-testid="stIconMaterial"], span[class*="material"] {
+        font-family: 'Material Symbols Rounded' !important;
+    }
+
     /* Force light backgrounds everywhere, override dark mode */
     .stApp, .main, [data-testid="stAppViewContainer"], body {
         background-color: #F5F6FB !important;

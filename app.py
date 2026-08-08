@@ -339,7 +339,7 @@ shield_icon = '''<svg width="26" height="26" viewBox="0 0 24 24" fill="#4F46E5">
 
 with st.sidebar:
     st.markdown(f'''
-    <div style="display:flex; align-items:center; gap:10px; margin-top: -3.2rem; margin-bottom: 18px;">
+    <div style="display:flex; align-items:center; gap:10px; margin-top: 0rem; margin-bottom: 18px;">
         <div>{shield_icon}</div>
         <div style="font-weight:800; font-size:24px; line-height:1.25; color:#111827;">Fake Job<br>Detection</div>
     </div>

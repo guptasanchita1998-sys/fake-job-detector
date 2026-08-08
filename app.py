@@ -455,7 +455,7 @@ if page == "Dashboard":
         </div>""", unsafe_allow_html=True)
 
     st.write("")
-    st.markdown('<div class="card-box">', unsafe_allow_html=True)
+    st.markdown('<div class="card-box" style="padding-top:16px;">', unsafe_allow_html=True)
     col_form, col_illus = st.columns([2.2, 1])
     with col_form:
         st.markdown('<div class="card-title">Check a Job Posting</div>', unsafe_allow_html=True)

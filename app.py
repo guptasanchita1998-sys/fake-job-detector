@@ -136,10 +136,9 @@ st.markdown("""
         height: 100%;
     }
     .stat-icon {
-        width: 52px; height: 52px;
-        border-radius: 14px;
+        width: 48px; height: 48px;
+        border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-size: 24px;
         margin-bottom: 16px;
     }
     .stat-label { color: #6B7280; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
@@ -283,11 +282,16 @@ if page == "📊 Dashboard":
             st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True, on_click=_go_to_check_job)
 
     st.write("")
+    icon_doc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#16A34A"><path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/></svg>'
+    icon_warn = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+    icon_shield = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>'
+    icon_chart = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>'
+
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-icon icon-blue">📄</div>
+            <div class="stat-icon icon-green">{icon_doc}</div>
             <div class="stat-label">Jobs Checked</div>
             <div class="stat-value">{jobs_checked}</div>
             <div class="stat-sub">Total jobs analyzed</div>
@@ -295,7 +299,7 @@ if page == "📊 Dashboard":
     with c2:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-icon icon-red">⚠️</div>
+            <div class="stat-icon icon-red">{icon_warn}</div>
             <div class="stat-label">Fake Jobs</div>
             <div class="stat-value">{fake_count}</div>
             <div class="stat-sub">Identified as fake</div>
@@ -303,7 +307,7 @@ if page == "📊 Dashboard":
     with c3:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-icon icon-amber">🛡️</div>
+            <div class="stat-icon icon-amber">{icon_shield}</div>
             <div class="stat-label">Safe Jobs</div>
             <div class="stat-value">{safe_count}</div>
             <div class="stat-sub">Looks safe</div>
@@ -311,7 +315,7 @@ if page == "📊 Dashboard":
     with c4:
         st.markdown(f"""
         <div class="stat-card">
-            <div class="stat-icon icon-blue">📈</div>
+            <div class="stat-icon icon-blue">{icon_chart}</div>
             <div class="stat-label">Accuracy</div>
             <div class="stat-value">{model_accuracy}%</div>
             <div class="stat-sub">Model accuracy</div>

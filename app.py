@@ -248,27 +248,47 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- Sidebar ----------------
-nav_options = ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "🔔 Alerts", "💡 Tips", "ℹ️ About"]
+# ---------------- Sidebar ----------------
+nav_items = [
+    ("Dashboard", "grid_view"),
+    ("Check Job", "search"),
+    ("Scan History", "description"),
+    ("Alerts", "notifications"),
+    ("Tips", "lightbulb"),
+    ("About", "info"),
+]
 
 if 'sidebar_nav' not in st.session_state:
-    st.session_state.sidebar_nav = "📊 Dashboard"
+    st.session_state.sidebar_nav = "Dashboard"
 
 shield_icon = '''<svg width="26" height="26" viewBox="0 0 24 24" fill="#4F46E5"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/><path d="M10.5 15.5L7 12l1.4-1.4 2.1 2.1 5.1-5.1L17 9l-6.5 6.5z" fill="white"/></svg>'''
 
 with st.sidebar:
     st.markdown(f'''
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 10px;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 18px;">
         <div>{shield_icon}</div>
         <div style="font-weight:800; font-size:17px; line-height:1.2; color:#111827;">Fake Job<br>Detection</div>
     </div>
     ''', unsafe_allow_html=True)
-    page = st.radio(
-        "Navigate", nav_options,
-        label_visibility="collapsed",
-        key="sidebar_nav"
-    )
+
+    for label, icon in nav_items:
+        is_active = (st.session_state.sidebar_nav == label)
+        btn_type = "primary" if is_active else "tertiary"
+        if st.button(label, icon=f":material/{icon}:", key=f"nav_{label}", use_container_width=True, type=btn_type):
+            st.session_state.sidebar_nav = label
+            st.rerun()
+
+page = st.session_state.sidebar_nav
     st.markdown("---")
-    st.info("**Stay Safe!**\n\nVerify before you apply.")
+    st.markdown('''
+    <div style="background:#F3F4FE; border-radius:14px; padding:16px; margin-top:14px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <span style="color:#4F46E5;">🛡️</span>
+            <span style="color:#4F46E5; font-weight:700; font-size:15px;">Stay Safe!</span>
+        </div>
+        <div style="color:#6B7280; font-size:13px;">Verify before you apply.</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
 # ---------------- Derived stats ----------------
 history_df = pd.DataFrame(st.session_state.history)
@@ -278,7 +298,7 @@ safe_count = jobs_checked - fake_count
 model_accuracy = 95  # from training report
 
 # ---------------- PAGE: Dashboard ----------------
-if page == "📊 Dashboard":
+if page == "Dashboard":
     col_t, col_r = st.columns([3, 1.3])
     with col_t:
         st.markdown("# Dashboard")
@@ -290,7 +310,7 @@ if page == "📊 Dashboard":
             st.markdown('<div style="background:#fff;border:1px solid #EEF0F5;border-radius:10px;padding:8px 14px; font-size:16px; text-align:center;">⚙️</div>', unsafe_allow_html=True)
         with btn_col2:
             def _go_to_check_job():
-                st.session_state.sidebar_nav = "🔍 Check Job"
+                st.session_state.sidebar_nav = "Check Job"
             st.button("➕ Check New Job", key="top_check_new_job", use_container_width=True, on_click=_go_to_check_job)
 
     st.write("")
@@ -381,7 +401,7 @@ if page == "📊 Dashboard":
     with rs_col2:
         if jobs_checked > 0:
             def _go_to_history():
-                st.session_state.sidebar_nav = "🕓 Scan History"
+                st.session_state.sidebar_nav = "Scan History"
             st.button("View All →", key="view_all_scans", on_click=_go_to_history, use_container_width=True)
     st.write("")
     if jobs_checked == 0:
@@ -417,7 +437,7 @@ if page == "📊 Dashboard":
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------------- PAGE: Check Job (detailed, with explainability) ----------------
-elif page == "🔍 Check Job":
+elif page == "Check Job":
     st.markdown("# Check a Job Posting")
     st.markdown('<p class="dash-subtitle">Paste full details for a deeper AI analysis with reasoning.</p>', unsafe_allow_html=True)
     st.write("")
@@ -495,7 +515,7 @@ elif page == "🔍 Check Job":
                     st.write("Koi strong real indicator nahi mila")
 
 # ---------------- PAGE: Scan History ----------------
-elif page == "🕓 Scan History":
+elif page == "Scan History":
     st.markdown("# Scan History")
     st.markdown('<p class="dash-subtitle">All jobs you\'ve checked in this session.</p>', unsafe_allow_html=True)
     st.write("")
@@ -512,7 +532,7 @@ elif page == "🕓 Scan History":
             st.rerun()
 
 # ---------------- PAGE: Tips ----------------
-elif page == "💡 Tips":
+elif page == "Tips":
     st.markdown("# Tips to Spot Fake Jobs")
     st.write("")
     tips = [
@@ -531,7 +551,7 @@ elif page == "💡 Tips":
         """, unsafe_allow_html=True)
 
 # ---------------- PAGE: Alerts ----------------
-elif page == "🔔 Alerts":
+elif page == "Alerts":
     st.markdown("# Alerts")
     st.markdown('<p class="dash-subtitle">Recent fake job detections from your scans.</p>', unsafe_allow_html=True)
     st.write("")
@@ -548,7 +568,7 @@ elif page == "🔔 Alerts":
             """, unsafe_allow_html=True)
 
 # ---------------- PAGE: About ----------------
-elif page == "ℹ️ About":
+elif page == "About":
     st.markdown("# About")
     st.write("")
     st.markdown('<div class="card-box">', unsafe_allow_html=True)

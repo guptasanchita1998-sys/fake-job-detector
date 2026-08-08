@@ -248,13 +248,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------- Sidebar ----------------
-nav_options = ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "💡 Tips"]
+nav_options = ["📊 Dashboard", "🔍 Check Job", "🕓 Scan History", "🔔 Alerts", "💡 Tips", "ℹ️ About"]
 
 if 'sidebar_nav' not in st.session_state:
     st.session_state.sidebar_nav = "📊 Dashboard"
 
+shield_icon = '''<svg width="26" height="26" viewBox="0 0 24 24" fill="#4F46E5"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/><path d="M10.5 15.5L7 12l1.4-1.4 2.1 2.1 5.1-5.1L17 9l-6.5 6.5z" fill="white"/></svg>'''
+
 with st.sidebar:
-    st.markdown("### 🛡️ Fake Job Detection")
+    st.markdown(f'''
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 10px;">
+        <div>{shield_icon}</div>
+        <div style="font-weight:800; font-size:17px; line-height:1.2; color:#111827;">Fake Job<br>Detection</div>
+    </div>
+    ''', unsafe_allow_html=True)
     page = st.radio(
         "Navigate", nav_options,
         label_visibility="collapsed",
@@ -522,3 +529,34 @@ elif page == "💡 Tips":
             <span style="color:#6B7280;">{d}</span>
         </div>
         """, unsafe_allow_html=True)
+
+# ---------------- PAGE: Alerts ----------------
+elif page == "🔔 Alerts":
+    st.markdown("# Alerts")
+    st.markdown('<p class="dash-subtitle">Recent fake job detections from your scans.</p>', unsafe_allow_html=True)
+    st.write("")
+    if fake_count == 0:
+        st.info("No fake jobs flagged yet. Check a job posting to see alerts here.")
+    else:
+        fake_rows = history_df[history_df["Result"] == "FAKE"].iloc[::-1]
+        for _, row in fake_rows.iterrows():
+            st.markdown(f"""
+            <div class="card-box" style="margin-bottom:12px; border-left: 4px solid #E11D48;">
+                <b>⚠️ {row["Title"]}</b><br>
+                <span style="color:#6B7280;">Flagged as FAKE with {row["Confidence"]}% confidence — {row["Checked On"]}</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+# ---------------- PAGE: About ----------------
+elif page == "ℹ️ About":
+    st.markdown("# About")
+    st.write("")
+    st.markdown('<div class="card-box">', unsafe_allow_html=True)
+    st.markdown("""
+    **Fake Job Detection** is an AI-powered tool that helps job seekers identify fraudulent job postings before applying.
+
+    It uses a **TF-IDF + Logistic Regression** model trained on thousands of real and fake job listings to flag suspicious postings, and explains *why* a posting was flagged by highlighting the specific words that influenced the prediction.
+
+    **Model accuracy:** ~95% &nbsp;|&nbsp; **Built with:** Python, scikit-learn, Streamlit
+    """)
+    st.markdown('</div>', unsafe_allow_html=True)

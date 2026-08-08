@@ -112,8 +112,13 @@ st.markdown("""
         flex-direction: column;
         gap: 0.4rem !important;
         overflow: hidden;
+        height: 100%;
+        min-height: 85vh;
     }
     section[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-bottom-anchor) {
+        margin-top: auto !important;
+    }
+    section[data-testid="stSidebar"] *:has(> .sidebar-bottom-anchor) {
         margin-top: auto !important;
     }
     section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] {

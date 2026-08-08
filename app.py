@@ -77,23 +77,30 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #FFFFFF !important;
         border-right: 1px solid #EEF0F5;
+        height: 100vh;
+        overflow: hidden;
     }
     section[data-testid="stSidebar"] * {
         color: #111827 !important;
     }
-    section[data-testid="stSidebar"] .block-container,
-    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"],
-    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
-        padding-top: 0.5rem !important;
-        gap: 0.4rem !important;
-    }
-    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    section[data-testid="stSidebar"] > div {
+        height: 100%;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        overflow: hidden;
     }
-    section[data-testid="stSidebar"] > div {
-        height: 100vh;
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding-top: 0.5rem !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem !important;
         overflow: hidden;
     }
     section[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-bottom-anchor) {

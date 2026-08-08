@@ -202,10 +202,22 @@ st.markdown("""
         padding: 0.55rem 0.9rem !important;
         margin-bottom: 2px;
         font-size: 15px !important;
+        width: 100%;
+    }
+    section[data-testid="stSidebar"] div.stButton > button > div {
+        justify-content: flex-start !important;
+        width: 100%;
+    }
+    section[data-testid="stSidebar"] div.stButton > button p {
+        text-align: left !important;
     }
     /* Active nav item (type="primary") */
     section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
         background: #EEF0FE !important;
+        color: #4F46E5 !important;
+        font-weight: 700 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] p {
         color: #4F46E5 !important;
         font-weight: 700 !important;
     }
@@ -219,8 +231,15 @@ st.markdown("""
         color: #374151 !important;
         font-weight: 500 !important;
     }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-tertiary"] p {
+        color: #374151 !important;
+        font-weight: 500 !important;
+    }
     section[data-testid="stSidebar"] [data-testid="stBaseButton-tertiary"]:hover {
         background: #F3F4F6 !important;
+        color: #111827 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-tertiary"]:hover p {
         color: #111827 !important;
     }
 

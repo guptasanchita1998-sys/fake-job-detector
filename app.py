@@ -105,6 +105,7 @@ st.markdown("""
         flex-direction: column;
         overflow: hidden;
         padding-top: 0.2rem !important;
+        padding-bottom: 1.2rem !important;
     }
     section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         flex: 1;
@@ -113,7 +114,7 @@ st.markdown("""
         gap: 0.4rem !important;
         overflow: hidden;
         height: 100%;
-        min-height: 85vh;
+        min-height: 78vh;
     }
     section[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-bottom-anchor) {
         margin-top: auto !important;

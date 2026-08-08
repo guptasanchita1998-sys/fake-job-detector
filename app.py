@@ -487,7 +487,7 @@ if page == "Dashboard":
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.write("")
-    st.markdown('<div class="card-box">', unsafe_allow_html=True)
+    st.markdown('<div class="card-box" style="padding-top:16px;">', unsafe_allow_html=True)
     rs_col1, rs_col2 = st.columns([4, 1])
     with rs_col1:
         st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)

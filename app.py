@@ -81,9 +81,14 @@ st.markdown("""
     section[data-testid="stSidebar"] * {
         color: #111827 !important;
     }
-    section[data-testid="stSidebar"] .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
+    section[data-testid="stSidebar"] .block-container,
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"],
+    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        padding-top: 0.5rem !important;
+        gap: 0.4rem !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] {
+        margin-top: 0 !important;
     }
     section[data-testid="stSidebar"] label {
         color: #374151 !important;

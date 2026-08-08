@@ -278,7 +278,6 @@ with st.sidebar:
             st.session_state.sidebar_nav = label
             st.rerun()
 
-page = st.session_state.sidebar_nav
     st.markdown("---")
     st.markdown('''
     <div style="background:#F3F4FE; border-radius:14px; padding:16px; margin-top:14px;">
@@ -289,6 +288,8 @@ page = st.session_state.sidebar_nav
         <div style="color:#6B7280; font-size:13px;">Verify before you apply.</div>
     </div>
     ''', unsafe_allow_html=True)
+
+page = st.session_state.sidebar_nav
 
 # ---------------- Derived stats ----------------
 history_df = pd.DataFrame(st.session_state.history)

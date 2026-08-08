@@ -90,7 +90,11 @@ st.markdown("""
     section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         display: flex;
         flex-direction: column;
-        min-height: 92vh;
+        height: 100%;
+    }
+    section[data-testid="stSidebar"] > div {
+        height: 100vh;
+        overflow: hidden;
     }
     section[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-bottom-anchor) {
         margin-top: auto !important;

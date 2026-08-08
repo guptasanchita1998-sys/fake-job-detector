@@ -82,7 +82,8 @@ st.markdown("""
         color: #111827 !important;
     }
     section[data-testid="stSidebar"] .block-container {
-        padding-top: 1.5rem;
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
     }
     section[data-testid="stSidebar"] label {
         color: #374151 !important;
@@ -201,7 +202,7 @@ st.markdown("""
         border-radius: 10px !important;
         padding: 0.55rem 0.9rem !important;
         margin-bottom: 2px;
-        font-size: 15px !important;
+        font-size: 17px !important;
         width: 100%;
     }
     section[data-testid="stSidebar"] div.stButton > button > div {
@@ -316,7 +317,7 @@ with st.sidebar:
     st.markdown(f'''
     <div style="display:flex; align-items:center; gap:10px; margin-bottom: 18px;">
         <div>{shield_icon}</div>
-        <div style="font-weight:800; font-size:17px; line-height:1.2; color:#111827;">Fake Job<br>Detection</div>
+        <div style="font-weight:800; font-size:24px; line-height:1.25; color:#111827;">Fake Job<br>Detection</div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -332,9 +333,9 @@ with st.sidebar:
     <div style="background:#F3F4FE; border-radius:14px; padding:16px; margin-top:14px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
             <span style="color:#4F46E5;">🛡️</span>
-            <span style="color:#4F46E5; font-weight:700; font-size:15px;">Stay Safe!</span>
+            <span style="color:#4F46E5; font-weight:700; font-size:17px;">Stay Safe!</span>
         </div>
-        <div style="color:#6B7280; font-size:13px;">Verify before you apply.</div>
+        <div style="color:#6B7280; font-size:14px;">Verify before you apply.</div>
     </div>
     ''', unsafe_allow_html=True)
 

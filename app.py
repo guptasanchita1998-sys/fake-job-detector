@@ -130,20 +130,25 @@ st.markdown("""
     .stat-card {
         background: #FFFFFF;
         border-radius: 18px;
-        padding: 28px 26px;
+        padding: 22px 24px;
         border: 1px solid #EEF0F5;
         box-shadow: 0 1px 3px rgba(16,24,40,0.05);
         height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
     }
     .stat-icon {
         width: 48px; height: 48px;
+        min-width: 48px;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        margin-bottom: 16px;
+        margin-bottom: 0;
     }
-    .stat-label { color: #6B7280; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-    .stat-value { color: #111827; font-size: 34px; font-weight: 800; line-height: 1.2; margin: 4px 0; }
-    .stat-sub { color: #9CA3AF; font-size: 13px; margin-top: 4px; }
+    .stat-text { display: flex; flex-direction: column; }
+    .stat-label { color: #6B7280; font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+    .stat-value { color: #111827; font-size: 28px; font-weight: 800; line-height: 1.2; margin: 0; }
+    .stat-sub { color: #9CA3AF; font-size: 12px; margin-top: 2px; }
 
     .icon-green { background: #E7F7EF; color: #16A34A; }
     .icon-red { background: #FDEBEC; color: #E11D48; }
@@ -292,33 +297,41 @@ if page == "📊 Dashboard":
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-icon icon-green">{icon_doc}</div>
-            <div class="stat-label">Jobs Checked</div>
-            <div class="stat-value">{jobs_checked}</div>
-            <div class="stat-sub">Total jobs analyzed</div>
+            <div class="stat-text">
+                <div class="stat-label">Jobs Checked</div>
+                <div class="stat-value">{jobs_checked}</div>
+                <div class="stat-sub">Total jobs analyzed</div>
+            </div>
         </div>""", unsafe_allow_html=True)
     with c2:
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-icon icon-red">{icon_warn}</div>
-            <div class="stat-label">Fake Jobs</div>
-            <div class="stat-value">{fake_count}</div>
-            <div class="stat-sub">Identified as fake</div>
+            <div class="stat-text">
+                <div class="stat-label">Fake Jobs</div>
+                <div class="stat-value">{fake_count}</div>
+                <div class="stat-sub">Identified as fake</div>
+            </div>
         </div>""", unsafe_allow_html=True)
     with c3:
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-icon icon-amber">{icon_shield}</div>
-            <div class="stat-label">Safe Jobs</div>
-            <div class="stat-value">{safe_count}</div>
-            <div class="stat-sub">Looks safe</div>
+            <div class="stat-text">
+                <div class="stat-label">Safe Jobs</div>
+                <div class="stat-value">{safe_count}</div>
+                <div class="stat-sub">Looks safe</div>
+            </div>
         </div>""", unsafe_allow_html=True)
     with c4:
         st.markdown(f"""
         <div class="stat-card">
             <div class="stat-icon icon-blue">{icon_chart}</div>
-            <div class="stat-label">Accuracy</div>
-            <div class="stat-value">{model_accuracy}%</div>
-            <div class="stat-sub">Model accuracy</div>
+            <div class="stat-text">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value">{model_accuracy}%</div>
+                <div class="stat-sub">Model accuracy</div>
+            </div>
         </div>""", unsafe_allow_html=True)
 
     st.write("")

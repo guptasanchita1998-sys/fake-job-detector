@@ -76,8 +76,8 @@ st.markdown("""
 
     /* Shrink the header bar (keeps sidebar collapse arrow, removes excess space) */
     header[data-testid="stHeader"] {
-        height: 2.2rem !important;
-        min-height: 2.2rem !important;
+        height: 1.6rem !important;
+        min-height: 1.6rem !important;
     }
     header[data-testid="stHeader"] [data-testid="stExpandSidebarButton"],
     header[data-testid="stHeader"] [data-testid="stCollapseSidebarButton"] {
@@ -349,7 +349,7 @@ shield_icon = '''<svg width="26" height="26" viewBox="0 0 24 24" fill="#4F46E5">
 
 with st.sidebar:
     st.markdown(f'''
-    <div style="display:flex; align-items:center; gap:10px; margin-top: -0.6rem; margin-bottom: 18px;">
+    <div style="display:flex; align-items:center; gap:10px; margin-top: 0rem; margin-bottom: 18px;">
         <div>{shield_icon}</div>
         <div style="font-weight:800; font-size:24px; line-height:1.25; color:#111827;">Fake Job<br>Detection</div>
     </div>

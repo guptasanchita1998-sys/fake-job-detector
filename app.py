@@ -74,6 +74,16 @@ st.markdown("""
         color: #111827 !important;
     }
 
+    /* Shrink the header bar (keeps sidebar collapse arrow, removes excess space) */
+    header[data-testid="stHeader"] {
+        height: 2.2rem !important;
+        min-height: 2.2rem !important;
+    }
+    header[data-testid="stHeader"] [data-testid="stExpandSidebarButton"],
+    header[data-testid="stHeader"] [data-testid="stCollapseSidebarButton"] {
+        margin-top: -0.3rem !important;
+    }
+
     section[data-testid="stSidebar"] {
         background-color: #FFFFFF !important;
         border-right: 1px solid #EEF0F5;
@@ -94,7 +104,7 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        padding-top: 0.5rem !important;
+        padding-top: 0.2rem !important;
     }
     section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
         flex: 1;

@@ -87,6 +87,14 @@ st.markdown("""
         padding-top: 0.5rem !important;
         gap: 0.4rem !important;
     }
+    section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        display: flex;
+        flex-direction: column;
+        min-height: 92vh;
+    }
+    section[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.sidebar-bottom-anchor) {
+        margin-top: auto !important;
+    }
     section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] {
         margin-top: 0 !important;
     }
@@ -333,14 +341,16 @@ with st.sidebar:
             st.session_state.sidebar_nav = label
             st.rerun()
 
-    st.markdown("---")
     st.markdown('''
-    <div style="background:#F3F4FE; border-radius:14px; padding:16px; margin-top:14px;">
+    <div class="sidebar-bottom-anchor">
+    <hr style="margin: 8px 0 14px 0; border-color: #EEF0F5;">
+    <div style="background:#F3F4FE; border-radius:14px; padding:16px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
             <span style="color:#4F46E5;">🛡️</span>
             <span style="color:#4F46E5; font-weight:700; font-size:17px;">Stay Safe!</span>
         </div>
         <div style="color:#6B7280; font-size:14px;">Verify before you apply.</div>
+    </div>
     </div>
     ''', unsafe_allow_html=True)
 

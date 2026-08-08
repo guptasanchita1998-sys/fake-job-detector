@@ -194,6 +194,36 @@ st.markdown("""
         color: white;
     }
 
+    /* Sidebar nav buttons: override the general button style above */
+    section[data-testid="stSidebar"] div.stButton > button {
+        justify-content: flex-start !important;
+        text-align: left !important;
+        border-radius: 10px !important;
+        padding: 0.55rem 0.9rem !important;
+        margin-bottom: 2px;
+        font-size: 15px !important;
+    }
+    /* Active nav item (type="primary") */
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+        background: #EEF0FE !important;
+        color: #4F46E5 !important;
+        font-weight: 700 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {
+        background: #E4E7FD !important;
+        color: #4F46E5 !important;
+    }
+    /* Inactive nav items (type="tertiary") */
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-tertiary"] {
+        background: transparent !important;
+        color: #374151 !important;
+        font-weight: 500 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stBaseButton-tertiary"]:hover {
+        background: #F3F4F6 !important;
+        color: #111827 !important;
+    }
+
     /* Table header row */
     .table-header {
         display: flex;

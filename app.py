@@ -211,6 +211,7 @@ st.markdown("""
         padding: 40px 30px 30px 30px !important;
         border: 1px solid #EEF0F5 !important;
         box-shadow: 0 1px 3px rgba(16,24,40,0.05) !important;
+        margin-top: 20px !important;
     }
 
     .card-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px; }

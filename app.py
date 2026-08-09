@@ -204,6 +204,15 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(16,24,40,0.05);
     }
 
+    /* Proper card styling via st.container(key=...) - actually wraps its content correctly */
+    .st-key-check_job_card, .st-key-recent_scans_card, .st-key-scan_history_card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 20px 30px 30px 30px;
+        border: 1px solid #EEF0F5;
+        box-shadow: 0 1px 3px rgba(16,24,40,0.05);
+    }
+
     .card-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px; }
     .card-desc { color: #6B7280; font-size: 14px; margin-bottom: 18px; }
 
@@ -454,80 +463,77 @@ if page == "Dashboard":
             </div>
         </div>""", unsafe_allow_html=True)
 
-    st.write("")
-    st.markdown('<div class="card-box" style="padding-top:16px;">', unsafe_allow_html=True)
-    col_form, col_illus = st.columns([2.2, 1])
-    with col_form:
-        st.markdown('<div class="card-title">Check a Job Posting</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-desc">Paste job description or details to check if it\'s fake or real.</div>', unsafe_allow_html=True)
-        quick_text = st.text_area("job_input", placeholder="Paste job description here...", height=130, label_visibility="collapsed")
-        if st.button("🔍  Analyze Job"):
-            if quick_text.strip():
-                text_vec = vectorizer.transform([quick_text])
-                prediction = model.predict(text_vec)[0]
-                probability = model.predict_proba(text_vec)[0]
-                confidence = probability[prediction] * 100
-                result_label = "FAKE" if prediction == 1 else "SAFE"
-                first_line = quick_text.strip().split("\n")[0]
-                st.session_state.history.append({
-                    "Title": first_line[:45] + ("..." if len(first_line) > 45 else ""),
-                    "Result": result_label,
-                    "Confidence": round(confidence),
-                    "Checked On": datetime.now().strftime("%b %d, %Y")
-                })
-                st.rerun()
-            else:
-                st.warning("Please paste a job description first.")
-    with col_illus:
-        st.markdown(
-            '<div style="text-align:center; padding-top:10px;">'
-            '<div style="font-size:70px;">🖥️🔍</div>'
-            '<p style="color:#6B7280; font-size:13px; margin-top:10px;">Our AI model analyzes the job post and detects red flags instantly.</p>'
-            '</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(key="check_job_card"):
+        col_form, col_illus = st.columns([2.2, 1])
+        with col_form:
+            st.markdown('<div class="card-title">Check a Job Posting</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-desc">Paste job description or details to check if it\'s fake or real.</div>', unsafe_allow_html=True)
+            quick_text = st.text_area("job_input", placeholder="Paste job description here...", height=130, label_visibility="collapsed")
+            if st.button("🔍  Analyze Job"):
+                if quick_text.strip():
+                    text_vec = vectorizer.transform([quick_text])
+                    prediction = model.predict(text_vec)[0]
+                    probability = model.predict_proba(text_vec)[0]
+                    confidence = probability[prediction] * 100
+                    result_label = "FAKE" if prediction == 1 else "SAFE"
+                    first_line = quick_text.strip().split("\n")[0]
+                    st.session_state.history.append({
+                        "Title": first_line[:45] + ("..." if len(first_line) > 45 else ""),
+                        "Result": result_label,
+                        "Confidence": round(confidence),
+                        "Checked On": datetime.now().strftime("%b %d, %Y")
+                    })
+                    st.rerun()
+                else:
+                    st.warning("Please paste a job description first.")
+        with col_illus:
+            st.markdown(
+                '<div style="text-align:center; padding-top:10px;">'
+                '<div style="font-size:70px;">🖥️🔍</div>'
+                '<p style="color:#6B7280; font-size:13px; margin-top:10px;">Our AI model analyzes the job post and detects red flags instantly.</p>'
+                '</div>', unsafe_allow_html=True)
 
     st.write("")
-    st.markdown('<div class="card-box" style="padding-top:16px;">', unsafe_allow_html=True)
-    rs_col1, rs_col2 = st.columns([4, 1])
-    with rs_col1:
-        st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)
-    with rs_col2:
-        if jobs_checked > 0:
-            def _go_to_history():
-                st.session_state.sidebar_nav = "Scan History"
-            st.button("View All →", key="view_all_scans", on_click=_go_to_history, use_container_width=True)
-    st.write("")
-    if jobs_checked == 0:
-        st.caption("No jobs checked yet. Try analyzing one above!")
-    else:
-        st.markdown("""
-        <div class="table-header">
-            <div class="col-title">Job Title</div>
-            <div class="col-result">Result</div>
-            <div class="col-conf">Confidence</div>
-            <div class="col-date">Checked On</div>
-            <div style="width:20px;"></div>
-        </div>
-        """, unsafe_allow_html=True)
-        recent = history_df.tail(5).iloc[::-1]
-        for _, row in recent.iterrows():
-            is_fake = row["Result"] == "FAKE"
-            badge_html = f'<span class="badge-fake">Fake</span>' if is_fake else f'<span class="badge-safe">Safe</span>'
-            bar_class = "conf-bar-fill-fake" if is_fake else "conf-bar-fill-safe"
-            conf_val = row["Confidence"]
-            st.markdown(f"""
-            <div class="table-row">
-                <div class="col-title">{row["Title"]}</div>
-                <div class="col-result">{badge_html}</div>
-                <div class="col-conf">
-                    {conf_val}%
-                    <div class="conf-bar-bg"><div class="{bar_class}" style="width:{conf_val}%;"></div></div>
-                </div>
-                <div class="col-date">{row["Checked On"]}</div>
-                <div style="width:20px; color:#C4C9D4; font-size:16px;">›</div>
+    with st.container(key="recent_scans_card"):
+        rs_col1, rs_col2 = st.columns([4, 1])
+        with rs_col1:
+            st.markdown('<div class="card-title">Recent Scans</div>', unsafe_allow_html=True)
+        with rs_col2:
+            if jobs_checked > 0:
+                def _go_to_history():
+                    st.session_state.sidebar_nav = "Scan History"
+                st.button("View All →", key="view_all_scans", on_click=_go_to_history, use_container_width=True)
+        st.write("")
+        if jobs_checked == 0:
+            st.caption("No jobs checked yet. Try analyzing one above!")
+        else:
+            st.markdown("""
+            <div class="table-header">
+                <div class="col-title">Job Title</div>
+                <div class="col-result">Result</div>
+                <div class="col-conf">Confidence</div>
+                <div class="col-date">Checked On</div>
+                <div style="width:20px;"></div>
             </div>
             """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+            recent = history_df.tail(5).iloc[::-1]
+            for _, row in recent.iterrows():
+                is_fake = row["Result"] == "FAKE"
+                badge_html = f'<span class="badge-fake">Fake</span>' if is_fake else f'<span class="badge-safe">Safe</span>'
+                bar_class = "conf-bar-fill-fake" if is_fake else "conf-bar-fill-safe"
+                conf_val = row["Confidence"]
+                st.markdown(f"""
+                <div class="table-row">
+                    <div class="col-title">{row["Title"]}</div>
+                    <div class="col-result">{badge_html}</div>
+                    <div class="col-conf">
+                        {conf_val}%
+                        <div class="conf-bar-bg"><div class="{bar_class}" style="width:{conf_val}%;"></div></div>
+                    </div>
+                    <div class="col-date">{row["Checked On"]}</div>
+                    <div style="width:20px; color:#C4C9D4; font-size:16px;">›</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 # ---------------- PAGE: Check Job (detailed, with explainability) ----------------
 elif page == "Check Job":
@@ -615,11 +621,10 @@ elif page == "Scan History":
     if jobs_checked == 0:
         st.info("No jobs checked yet. Go to 'Check Job' to try one!")
     else:
-        st.markdown('<div class="card-box">', unsafe_allow_html=True)
-        display_df = history_df.iloc[::-1].copy()
-        display_df["Confidence"] = display_df["Confidence"].astype(str) + "%"
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(key="scan_history_card"):
+            display_df = history_df.iloc[::-1].copy()
+            display_df["Confidence"] = display_df["Confidence"].astype(str) + "%"
+            st.dataframe(display_df, use_container_width=True, hide_index=True)
         if st.button("Clear History"):
             st.session_state.history = []
             st.rerun()

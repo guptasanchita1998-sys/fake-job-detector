@@ -208,7 +208,7 @@ st.markdown("""
     .st-key-check_job_card, .st-key-recent_scans_card, .st-key-scan_history_card {
         background: #FFFFFF;
         border-radius: 18px;
-        padding: 20px 30px 30px 30px;
+        padding: 30px;
         border: 1px solid #EEF0F5;
         box-shadow: 0 1px 3px rgba(16,24,40,0.05);
     }

@@ -211,6 +211,14 @@ st.markdown("""
         padding: 40px 30px 30px 30px !important;
         border: 1px solid #EEF0F5 !important;
         box-shadow: 0 1px 3px rgba(16,24,40,0.05) !important;
+    }
+    .st-key-check_job_card {
+        margin-top: 28px !important;
+    }
+    .st-key-recent_scans_card {
+        margin-top: 12px !important;
+    }
+    .st-key-scan_history_card {
         margin-top: 20px !important;
     }
 
@@ -494,7 +502,6 @@ if page == "Dashboard":
                 '<p style="color:#6B7280; font-size:13px; margin-top:10px;">Our AI model analyzes the job post and detects red flags instantly.</p>'
                 '</div>', unsafe_allow_html=True)
 
-    st.write("")
     with st.container(key="recent_scans_card"):
         rs_col1, rs_col2 = st.columns([4, 1])
         with rs_col1:

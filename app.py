@@ -206,11 +206,11 @@ st.markdown("""
 
     /* Proper card styling via st.container(key=...) - actually wraps its content correctly */
     .st-key-check_job_card, .st-key-recent_scans_card, .st-key-scan_history_card {
-        background: #FFFFFF;
-        border-radius: 18px;
-        padding: 30px;
-        border: 1px solid #EEF0F5;
-        box-shadow: 0 1px 3px rgba(16,24,40,0.05);
+        background: #FFFFFF !important;
+        border-radius: 18px !important;
+        padding: 40px 30px 30px 30px !important;
+        border: 1px solid #EEF0F5 !important;
+        box-shadow: 0 1px 3px rgba(16,24,40,0.05) !important;
     }
 
     .card-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px; }
